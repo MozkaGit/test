@@ -1,0 +1,207 @@
+version : "3.8"
+services:
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/transmission/config:/config
+      - /mnt/Elements/Download:/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+
+  plex:
+    image: linuxserver/plex
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+    volumes:
+      - /home/freebox/plex/config:/config
+      - /mnt/Elements/Vidéo/Films:/movies
+      - /mnt/Elements/Vidéo/Série:/tv
+      - /mnt/Elements/Vidéo/Films_animations:/Animations
+      - /mnt/Elements/Vidéo/Animes:/Animes
+    restart: unless-stopped
+
+  jackett:
+    image: linuxserver/jackett:latest
+    container_name: jackett
+    restart: unless-stopped
+    ports:
+      - 9117:9117
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/jackett/config:/config
+      - /etc/localtime:/etc/localtime:ro
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    ports:
+        - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/sonarr/config:/config
+      - /mnt/Elements/Vidéo/Série:/tv
+      - /mnt/Elements/Vidéo/Animes:/animes
+      - /mnt/Elements/Download:/downloads
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/radarr/config:/config
+      - /mnt/Elements/Vidéo/Films:/movies
+      - /mnt/Elements/Vidéo/Films_animations:/animes_movies
+      - /mnt/Elements/Download:/downloads
+
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/bazarr/config:/config
+      - /mnt/Elements/Vidéo/Films:/movies
+      - /mnt/Elements/Vidéo/Films_animations:/animes_movies
+      - /mnt/Elements/Vidéo/Série:/tv
+      - /mnt/Elements/Vidéo/Animes:/animes
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+
+  homebridge:
+    image: oznu/homebridge:ubuntu
+    container_name: homebridge
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /home/freebox/homebridge/config:/config
+    restart: unless-stopped
+
+  komga:
+    image: gotson/komga
+    container_name: komga
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/komga/config:/config
+      - /mnt/Elements/Library:/data
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Europe/Paris
+    ports:
+      - 5055:5055
+    volumes:
+      - /home/freebox/overseer/config:/app/config
+    restart: unless-stopped
+
+
+  ombi:
+    image: linuxserver/ombi
+    container_name: ombi
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/ombi/config/:/config
+    ports:
+      - 3579:3579
+    restart: unless-stopped
+
+  npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: npm
+    restart: unless-stopped
+    ports:
+      - '80:80' # Public HTTP Port
+      - '443:443' # Public HTTPS Port
+      - '81:81' # Admin Web Port
+    volumes:
+      - /home/freebox/npm/data:/data
+      - /home/freebox/npm/letsencrypt:/etc/letsencrypt
+
+  plexanisync:
+    image: ghcr.io/rickdb/tautulli-plexanisync:latest
+    container_name: tautulli-plexanisync
+    environment:
+      - PLEX_SECTION=Animes
+      - 'PLEX_URL=${PLEX_URL}'
+      - PLEX_TOKEN=${PLEX_TOKEN}
+      - ANI_USERNAME=${ANI_USERNAME}
+      - ANI_TOKEN=${ANI_TOKEN}
+      - INTERVAL=0
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/tautulli/config:/config
+      - /home/freebox/plexanisync/custom_mappings.yaml:/plexanisync/custom_mappings.yaml
+    ports:
+      - 8181:8181
+    restart: unless-stopped
+
+  plexautolanguagues:
+    image: remirigal/plex-auto-languages:latest
+    container_name: plexautolanguagues
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /home/freebox/plexautolanguage/config:/config
+    restart: unless-stopped
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: monitoring
+    ports:
+      - "3001:3001"
+    volumes:
+      - /home/freebox/uptime-kuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
