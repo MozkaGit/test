@@ -8,8 +8,8 @@ services:
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/transmission/config:/config
-      - /mnt/Elements/Download:/downloads
+      - /home/freebox/plex-infra/transmission/config:/config
+      - /mnt/Elements/Downloads:/downloads
     ports:
       - 9091:9091
       - 51413:51413
@@ -25,11 +25,11 @@ services:
       - PGID=1000
       - VERSION=docker
     volumes:
-      - /home/freebox/plex/config:/config
-      - /mnt/Elements/Vidéo/Films:/movies
-      - /mnt/Elements/Vidéo/Série:/tv
-      - /mnt/Elements/Vidéo/Films_animations:/Animations
-      - /mnt/Elements/Vidéo/Animes:/Animes
+      - /home/freebox/plex-infra/plex/config:/config
+      - /mnt/Elements/Vidéos/Films:/movies
+      - /mnt/Elements/Vidéos/Séries:/tv
+      - /mnt/Elements/Vidéos/Films_animations:/Animations
+      - /mnt/Elements/Vidéos/Animes:/Animes
     restart: unless-stopped
 
   jackett:
@@ -43,7 +43,7 @@ services:
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/jackett/config:/config
+      - /home/freebox/plex-infra/jackett/config:/config
       - /etc/localtime:/etc/localtime:ro
 
   sonarr:
@@ -57,10 +57,10 @@ services:
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/sonarr/config:/config
-      - /mnt/Elements/Vidéo/Série:/tv
-      - /mnt/Elements/Vidéo/Animes:/animes
-      - /mnt/Elements/Download:/downloads
+      - /home/freebox/plex-infra/sonarr/config:/config
+      - /mnt/Elements/Vidéos/Séries:/tv
+      - /mnt/Elements/Vidéos/Animes:/animes
+      - /mnt/Elements/Downloads:/downloads
 
   radarr:
     image: linuxserver/radarr:latest
@@ -73,10 +73,10 @@ services:
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/radarr/config:/config
-      - /mnt/Elements/Vidéo/Films:/movies
-      - /mnt/Elements/Vidéo/Films_animations:/animes_movies
-      - /mnt/Elements/Download:/downloads
+      - /home/freebox/plex-infra/radarr/config:/config
+      - /mnt/Elements/Vidéos/Films:/movies
+      - /mnt/Elements/Vidéos/Films_animations:/animes_movies
+      - /mnt/Elements/Downloads:/downloads
 
   bazarr:
     image: linuxserver/bazarr
@@ -86,11 +86,11 @@ services:
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/bazarr/config:/config
-      - /mnt/Elements/Vidéo/Films:/movies
-      - /mnt/Elements/Vidéo/Films_animations:/animes_movies
-      - /mnt/Elements/Vidéo/Série:/tv
-      - /mnt/Elements/Vidéo/Animes:/animes
+      - /home/freebox/plex-infra/bazarr/config:/config
+      - /mnt/Elements/Vidéos/Films:/movies
+      - /mnt/Elements/Vidéos/Films_animations:/animes_movies
+      - /mnt/Elements/Vidéos/Séries:/tv
+      - /mnt/Elements/Vidéos/Animes:/animes
     ports:
       - 6767:6767
     restart: unless-stopped
@@ -103,21 +103,21 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - /home/freebox/homebridge/config:/config
+      - /home/freebox/plex-infra/homebridge/config:/config
     restart: unless-stopped
 
   komga:
-    image: gotson/komga
+    image: gotson/komga:1.2.1
     container_name: komga
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/komga/config:/config
+      - /home/freebox/plex-infra/komga/config:/config
       - /mnt/Elements/Library:/data
     ports:
-      - 8080:8080
+      - 25600:25600
     restart: unless-stopped
 
   overseerr:
@@ -129,7 +129,7 @@ services:
     ports:
       - 5055:5055
     volumes:
-      - /home/freebox/overseer/config:/app/config
+      - /home/freebox/plex-infra/overseer/config:/app/config
     restart: unless-stopped
 
 
@@ -141,22 +141,22 @@ services:
       - PGID=1000
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/ombi/config/:/config
+      - /home/freebox/plex-infra/ombi/config/:/config
     ports:
       - 3579:3579
     restart: unless-stopped
 
   npm:
     image: 'jc21/nginx-proxy-manager:latest'
-    container_name: npm
+    container_name: nginx
     restart: unless-stopped
     ports:
       - '80:80' # Public HTTP Port
       - '443:443' # Public HTTPS Port
       - '81:81' # Admin Web Port
     volumes:
-      - /home/freebox/npm/data:/data
-      - /home/freebox/npm/letsencrypt:/etc/letsencrypt
+      - /home/freebox/plex-infra/nginx/data:/data
+      - /home/freebox/plex-infra/nginx/letsencrypt:/etc/letsencrypt
 
   plexanisync:
     image: ghcr.io/rickdb/tautulli-plexanisync:latest
@@ -170,8 +170,8 @@ services:
       - INTERVAL=0
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/tautulli/config:/config
-      - /home/freebox/plexanisync/custom_mappings.yaml:/plexanisync/custom_mappings.yaml
+      - /home/freebox/plex-infra/tautulli/config:/config
+      - /home/freebox/plex-infra/plexanisync/custom_mappings.yaml:/plexanisync/custom_mappings.yaml
     ports:
       - 8181:8181
     restart: unless-stopped
@@ -182,7 +182,7 @@ services:
     environment:
       - TZ=Europe/Paris
     volumes:
-      - /home/freebox/plexautolanguage/config:/config
+      - /home/freebox/plex-infra/plexautolanguage/config:/config
     restart: unless-stopped
 
   uptime-kuma:
@@ -191,7 +191,7 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - /home/freebox/uptime-kuma:/app/data
+      - /home/freebox/plex-infra/uptime-kuma:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
