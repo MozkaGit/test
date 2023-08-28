@@ -103,7 +103,7 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - /home/freebox/plex-infra/homebridge/config:/config
+      - /home/freebox/plex-infra/homebridge/config:/homebridge
     restart: unless-stopped
 
   komga:
@@ -183,16 +183,6 @@ services:
       - TZ=Europe/Paris
     volumes:
       - /home/freebox/plex-infra/plexautolanguage/config:/config
-    restart: unless-stopped
-
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    container_name: monitoring
-    ports:
-      - "3001:3001"
-    volumes:
-      - /home/freebox/plex-infra/uptime-kuma:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
   flaresolverr:
